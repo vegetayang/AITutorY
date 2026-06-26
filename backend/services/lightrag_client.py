@@ -1,9 +1,10 @@
 import httpx
+import os
 from typing import Optional, Dict, Any, List
 
 class LightRAGClient:
-    def __init__(self, base_url: str = "http://localhost:9621"):
-        self.base_url = base_url.rstrip("/")
+    def __init__(self, base_url: Optional[str] = None):
+        self.base_url = (base_url or os.getenv("LIGHTRAG_BASE_URL") or "http://localhost:9621").rstrip("/")
         self.client = httpx.AsyncClient(timeout=300.0)
     
     async def upload_document(self, file_path: str):

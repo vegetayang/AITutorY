@@ -14,6 +14,9 @@ lightrag_client = LightRAGClient()
 
 @router.get("/query")
 async def query_knowledge(query: str, mode: str = "mix", include_references: bool = False):
+    if not query or not query.strip():
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
+
     result = await lightrag_client.query(query, mode, include_references)
     return {
         "query": query,
@@ -27,13 +30,16 @@ async def query_knowledge_stream(request: dict):
     query = request.get("query", "")
     mode = request.get("mode", "mix")
     include_references = request.get("include_references", False)
+
+    if not query or not query.strip():
+        raise HTTPException(status_code=400, detail="Query cannot be empty")
     
     async def generate_stream() -> AsyncGenerator[str, None]:
         try:
             async with httpx.AsyncClient(timeout=300.0) as client:
                 async with client.stream(
                     "POST",
-                    f"http://localhost:9621/query/stream",
+                    f"{lightrag_client.base_url}/query/stream",
                     json={
                         "query": query,
                         "mode": mode,
