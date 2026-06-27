@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Float, Integer, DateTime, Text, JSON
+from sqlalchemy import create_engine, Column, String, Float, Integer, DateTime, Text, JSON, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 import os
@@ -42,6 +42,20 @@ class QuizRecord(Base):
     answers = Column(JSON)
     score = Column(Float)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class ReviewSchedule(Base):
+    __tablename__ = "review_schedules"
+
+    id = Column(String, primary_key=True, index=True)
+    node_id = Column(String, ForeignKey("skill_nodes.id"), index=True, unique=True, nullable=False)
+    interval_days = Column(Integer, default=1)
+    ease_factor = Column(Float, default=2.5)
+    review_count = Column(Integer, default=0)
+    last_score = Column(Float, nullable=True)
+    last_reviewed_at = Column(DateTime, nullable=True)
+    next_review_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
 
 def init_db():
     Base.metadata.create_all(bind=engine)
