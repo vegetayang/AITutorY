@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Float, Integer, DateTime, Text, JSON, ForeignKey
+from sqlalchemy import create_engine, Column, String, Float, Integer, DateTime, Text, JSON, ForeignKey, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
 import os
@@ -41,6 +41,31 @@ class QuizRecord(Base):
     questions = Column(JSON)
     answers = Column(JSON)
     score = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+class QuizAttempt(Base):
+    __tablename__ = "quiz_attempts"
+
+    id = Column(String, primary_key=True, index=True)
+    node_id = Column(String, ForeignKey("skill_nodes.id"), index=True, nullable=False)
+    question_type = Column(String, default="mixed")
+    score = Column(Float)
+    correct_count = Column(Integer)
+    total = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+
+class QuizAttemptItem(Base):
+    __tablename__ = "quiz_attempt_items"
+
+    id = Column(String, primary_key=True, index=True)
+    attempt_id = Column(String, ForeignKey("quiz_attempts.id"), index=True, nullable=False)
+    question_id = Column(String, index=True)
+    question = Column(Text)
+    user_answer = Column(Text)
+    correct_answer = Column(Text)
+    is_correct = Column(Boolean, default=False)
+    explanation = Column(Text, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class ReviewSchedule(Base):
